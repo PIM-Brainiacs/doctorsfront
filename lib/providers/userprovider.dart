@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:login_signup/model/user_model.dart';
 import 'package:login_signup/services/userapiservice.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider with ChangeNotifier {
   final List<User> _users = [];
@@ -11,28 +13,24 @@ class UserProvider with ChangeNotifier {
   List<User> get users => _users;
   String get invitationStatus => _invitationStatus;
 
-Future<User> createUser(String username, String email, String password) async {
-    try {
-      final User newUser = await UserApiService.createUser(username, email, password );
-      
-      // Optionally, you can perform actions after creating the user, such as updating the UI or storing user data
-      
-      return newUser;
-    } catch (e) {
-      // Handle errors if user creation fails
-      print('Failed to create user: $e');
-      throw Exception('Failed to create user');
-    }
+Future<User> createUser(String username, String email, String numTel, String password, String specialty, File? cvFile) async {
+  try {
+    final User newUser = await UserApiService.createUser(username, email, numTel, password, specialty, cvFile);
+    return newUser;
+  } catch (e) {
+    print('Failed to create user: $e');
+    throw Exception('Failed to create user');
   }
+}
+
   Future<User> authenticateUser(String username, String password) async {
     final User user = await UserApiService.authenticateUser(username, password);
 
-    // After successful authentication, you might want to store user data or token
-    // For example, storing user ID in SharedPreferences for later use
+   
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userId', user.id); // Assuming 'id' is a field in your User model
+  //  await prefs.setString('userId', user.id); // Assuming 'id' is a field in your User model
 
-    notifyListeners(); // Notify listeners in case you need to update the UI based on authentication status
+    notifyListeners(); 
     return user;
   }
 
@@ -41,13 +39,24 @@ Future<User> createUser(String username, String email, String password) async {
     final String userId = prefs.getString('userId') ?? '';
     return UserApiService.fetchUserProfile(userId);
   }
+ void saveUserDetailsLocally(User user) {
+    // You can implement this method to save user details locally, for example:
+    // Save user details to SharedPreferences, local database, etc.
+    // For example, if using SharedPreferences:
+    SharedPreferences.getInstance().then((prefs) {
+     // prefs.setString('userId', user.id);
+      // Save other user details as needed
+    });
 
-  Future<void> sendCredentialsByEmail(String adminEmail) async {
+    // Notify listeners if needed
+    notifyListeners();
+  }
+  Future<void> findByCredentials(String username, String password) async {
     try {
       _invitationStatus = 'Sending credentials...';
       notifyListeners();
 
-      await UserApiService.sendCredentialsByEmail(adminEmail);
+      await UserApiService.findByCredentials(username,password);
 
       _invitationStatus = 'Credentials sent successfully';
       notifyListeners();
@@ -57,5 +66,5 @@ Future<User> createUser(String username, String email, String password) async {
     }
   }
 
-  // Implement other functionalities as needed...
+ 
 }

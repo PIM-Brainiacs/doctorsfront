@@ -1,33 +1,39 @@
 class User {
-  final String id;
-  final String username; // Changed from 'username' to 'name' to match the form field
-  final String email;
-  final String password; // Added to store the password
-  final String role; // This remains the same ('teamLeader' or 'guest')
-  final bool termsAccepted; // Added to store the status of terms & policy checkbox
+  //final String id;
+  final String? username; 
+  final String? email;
+  final String? numTel;
+  final String? password; 
+  final String? specialty;
+  final String? role; 
+  final bool termsAccepted; 
 
   const User({
-    required this.id,
+    //required this.id,
     required this.username,
     required this.email,
-    required this.password, // Now required
-    this.role = 'DOCTOR', // Default value is 'guest'
-    required this.termsAccepted, // Now required
+    required this.numTel,
+    required this.password,
+    required this.specialty, 
+    this.role = 'DOCTOR', 
+    required this.termsAccepted, 
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Ensure that the role is either 'teamleader' or 'guest'
-    final String role = json['role']?.toLowerCase() ?? 'DOCTOR'; // Ensure case-insensitive match
+  
+    final String role = json['role']?.toLowerCase() ?? 'DOCTOR'; 
     final validRoles = ['AUTISTE', 'DOCTOR'];
     final selectedRole = validRoles.contains(role) ? role : 'DOCTOR';
 
     return User(
-      id: json['id'],
+      //id: json['id'],
       username: json['username'],
       email: json['email'],
+      numTel: json['numTel'],
       password: json['password'],
+      specialty: json['specialty'],
       role: selectedRole,
-      termsAccepted: json['termsAccepted'] ?? false, // Default to false if not provided
+      termsAccepted: json['termsAccepted'] ?? false, 
     );
   }
 }
